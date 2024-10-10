@@ -35,6 +35,7 @@ class PastureCollectorBlock(settings: Settings) : TBlockWithEntity<PastureCollec
         attemptToGetDrop(serverWorld, blockPos)
     }
 
+    @Suppress("OVERRIDE_DEPRECATION")
     override fun getRenderType(blockState: BlockState?): BlockRenderType {
         return BlockRenderType.MODEL
     }
@@ -113,7 +114,7 @@ class PastureCollectorBlockEntity(private val blockPos: BlockPos, blockState: Bl
         markDirty()
     }
 
-    fun addStackWhereFits(stackToAdd: ItemStack) {
+    private fun addStackWhereFits(stackToAdd: ItemStack) {
         for (i in 0 until inventory.size) {
             val stackInSlot = inventory[i]
             if (stackInSlot.isEmpty) {
@@ -129,6 +130,7 @@ class PastureCollectorBlockEntity(private val blockPos: BlockPos, blockState: Bl
                 val transferCount = min(stackToAdd.count, stackInSlot.maxCount - stackInSlot.count)
                 stackToAdd.decrement(transferCount)
                 stackInSlot.increment(transferCount)
+                if (stackToAdd.isEmpty) return
             }
         }
     }
@@ -154,8 +156,5 @@ class PastureCollectorBlockEntity(private val blockPos: BlockPos, blockState: Bl
         super.writeNbt(nbt)
     }
 
-    override fun toUpdatePacket(): Packet<ClientPlayPacketListener> {
-        val x = BlockEntityUpdateS2CPacket.create(this)
-        return x
-    }
+    override fun toUpdatePacket(): Packet<ClientPlayPacketListener>? = BlockEntityUpdateS2CPacket.create(this)
 }
