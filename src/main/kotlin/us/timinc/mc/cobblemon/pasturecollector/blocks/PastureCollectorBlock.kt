@@ -3,6 +3,7 @@ package us.timinc.mc.cobblemon.pasturecollector.blocks
 import com.cobblemon.mod.common.CobblemonBlocks
 import com.cobblemon.mod.common.block.entity.PokemonPastureBlockEntity
 import com.cobblemon.mod.common.pokemon.Pokemon
+import com.cobblemon.mod.common.util.giveOrDropItemStack
 import net.minecraft.block.BlockRenderType
 import net.minecraft.block.BlockState
 import net.minecraft.block.entity.BlockEntity
@@ -18,7 +19,10 @@ import net.minecraft.network.packet.Packet
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket
 import net.minecraft.particle.ParticleTypes
 import net.minecraft.server.world.ServerWorld
+import net.minecraft.util.ActionResult
+import net.minecraft.util.Hand
 import net.minecraft.util.collection.DefaultedList
+import net.minecraft.util.hit.BlockHitResult
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Direction
 import net.minecraft.util.math.random.Random
@@ -59,6 +63,21 @@ class PastureCollectorBlock(settings: Settings) : TBlockWithEntity<PastureCollec
         if (world !is ServerWorld) return
         val entity = getBlockEntity(world, blockPos)
         entity.spillContents(world)
+    }
+
+    @Suppress("OVERRIDE_DEPRECATION")
+    override fun onUse(
+        blockState: BlockState,
+        world: World,
+        blockPos: BlockPos,
+        playerEntity: PlayerEntity,
+        hand: Hand,
+        blockHitResult: BlockHitResult
+    ): ActionResult {
+        if (world !is ServerWorld) return ActionResult.SUCCESS
+        val entity = getBlockEntity(world, blockPos)
+        entity.giveContentsToPlayer(playerEntity)
+        return ActionResult.SUCCESS
     }
 }
 
@@ -187,6 +206,11 @@ class PastureCollectorBlockEntity(private val blockPos: BlockPos, blockState: Bl
         inventory.forEach { item ->
             world.spawnEntity(ItemEntity(world, pos.x.toDouble(), pos.y.toDouble(), pos.z.toDouble(), item))
         }
+        inventory.clear()
+    }
+
+    fun giveContentsToPlayer(playerEntity: PlayerEntity) {
+        inventory.forEach(playerEntity::giveOrDropItemStack)
         inventory.clear()
     }
 }
