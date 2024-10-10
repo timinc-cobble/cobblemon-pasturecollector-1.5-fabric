@@ -14,6 +14,7 @@ import net.minecraft.nbt.NbtCompound
 import net.minecraft.network.listener.ClientPlayPacketListener
 import net.minecraft.network.packet.Packet
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket
+import net.minecraft.particle.ParticleTypes
 import net.minecraft.server.world.ServerWorld
 import net.minecraft.util.collection.DefaultedList
 import net.minecraft.util.math.BlockPos
@@ -104,6 +105,18 @@ class PastureCollectorBlockEntity(private val blockPos: BlockPos, blockState: Bl
             debug("Nothing dropped.")
             return
         }
+
+        world.spawnParticles(
+            ParticleTypes.CAMPFIRE_COSY_SMOKE,
+            blockPos.x.toDouble() + 0.5,
+            blockPos.y.toDouble() + 1.0,
+            blockPos.z.toDouble() + 0.5,
+            3,
+            0.1,
+            0.0,
+            0.1,
+            0.0
+        )
 
         debug("Dropped: $list")
         list.forEach { stack ->
