@@ -3,6 +3,7 @@ package us.timinc.mc.cobblemon.pasturecollector.blocks
 import com.cobblemon.mod.common.CobblemonBlocks
 import com.cobblemon.mod.common.block.entity.PokemonPastureBlockEntity
 import com.cobblemon.mod.common.pokemon.Pokemon
+import net.minecraft.block.BlockRenderType
 import net.minecraft.block.BlockState
 import net.minecraft.block.entity.BlockEntity
 import net.minecraft.inventory.Inventories
@@ -32,6 +33,10 @@ class PastureCollectorBlock(settings: Settings) : TBlockWithEntity<PastureCollec
     override fun randomTick(blockState: BlockState, serverWorld: ServerWorld, blockPos: BlockPos, random: Random) {
 
         attemptToGetDrop(serverWorld, blockPos)
+    }
+
+    override fun getRenderType(blockState: BlockState?): BlockRenderType {
+        return BlockRenderType.MODEL
     }
 
     override fun hasRandomTicks(blockState: BlockState): Boolean = true
