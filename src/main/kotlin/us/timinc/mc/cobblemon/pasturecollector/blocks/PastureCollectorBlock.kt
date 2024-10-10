@@ -6,6 +6,8 @@ import com.cobblemon.mod.common.pokemon.Pokemon
 import net.minecraft.block.BlockRenderType
 import net.minecraft.block.BlockState
 import net.minecraft.block.entity.BlockEntity
+import net.minecraft.entity.ItemEntity
+import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.inventory.Inventories
 import net.minecraft.inventory.SidedInventory
 import net.minecraft.item.ItemStack
@@ -20,6 +22,7 @@ import net.minecraft.util.collection.DefaultedList
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Direction
 import net.minecraft.util.math.random.Random
+import net.minecraft.world.World
 import us.timinc.mc.cobblemon.pasturecollector.PastureCollector
 import us.timinc.mc.cobblemon.pasturecollector.PastureCollector.getDebug
 import us.timinc.mc.cobblemon.pasturecollector.PastureCollector.modIdentifier
@@ -50,6 +53,13 @@ class PastureCollectorBlock(settings: Settings) : TBlockWithEntity<PastureCollec
 
     override fun createBlockEntity(blockPos: BlockPos, blockState: BlockState): BlockEntity =
         PastureCollectorBlockEntity(blockPos, blockState)
+
+    override fun onBreak(world: World, blockPos: BlockPos, blockState: BlockState, playerEntity: PlayerEntity) {
+        super.onBreak(world, blockPos, blockState, playerEntity)
+        if (world !is ServerWorld) return
+        val entity = getBlockEntity(world, blockPos)
+        entity.spillContents(world)
+    }
 }
 
 class PastureCollectorBlockEntity(private val blockPos: BlockPos, blockState: BlockState) : BlockEntity(
@@ -172,4 +182,11 @@ class PastureCollectorBlockEntity(private val blockPos: BlockPos, blockState: Bl
     }
 
     override fun toUpdatePacket(): Packet<ClientPlayPacketListener>? = BlockEntityUpdateS2CPacket.create(this)
+
+    fun spillContents(world: World) {
+        inventory.forEach { item ->
+            world.spawnEntity(ItemEntity(world, pos.x.toDouble(), pos.y.toDouble(), pos.z.toDouble(), item))
+        }
+        inventory.clear()
+    }
 }
