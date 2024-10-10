@@ -10,6 +10,9 @@ import net.minecraft.inventory.SidedInventory
 import net.minecraft.item.ItemStack
 import net.minecraft.loot.LootDataType
 import net.minecraft.nbt.NbtCompound
+import net.minecraft.network.listener.ClientPlayPacketListener
+import net.minecraft.network.packet.Packet
+import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket
 import net.minecraft.server.world.ServerWorld
 import net.minecraft.util.collection.DefaultedList
 import net.minecraft.util.math.BlockPos
@@ -71,7 +74,7 @@ class PastureCollectorBlockEntity(private val blockPos: BlockPos, blockState: Bl
 
     fun attemptToGetDrop(world: ServerWorld, blockPos: BlockPos) {
         val debug = getDebug()
-        debug("Attempting to get drop.")
+        debug("Attempting to get drop for $blockPos.")
         val lootManager = world.server.lootManager
         val pokemon = getNearbyPastures()
             .flatMap { pasture ->
@@ -102,6 +105,7 @@ class PastureCollectorBlockEntity(private val blockPos: BlockPos, blockState: Bl
         }
         debug("Inventory: $inventory")
         debug("Leftover: $list")
+        markDirty()
     }
 
     fun addStackWhereFits(stackToAdd: ItemStack) {
@@ -124,8 +128,7 @@ class PastureCollectorBlockEntity(private val blockPos: BlockPos, blockState: Bl
         }
     }
 
-    override fun markDirty() {
-    }
+    override fun markDirty() {}
 
     override fun getAvailableSlots(direction: Direction): IntArray = intArrayOf(0)
 
@@ -144,5 +147,10 @@ class PastureCollectorBlockEntity(private val blockPos: BlockPos, blockState: Bl
     public override fun writeNbt(nbt: NbtCompound) {
         Inventories.writeNbt(nbt, inventory)
         super.writeNbt(nbt)
+    }
+
+    override fun toUpdatePacket(): Packet<ClientPlayPacketListener> {
+        val x = BlockEntityUpdateS2CPacket.create(this)
+        return x
     }
 }

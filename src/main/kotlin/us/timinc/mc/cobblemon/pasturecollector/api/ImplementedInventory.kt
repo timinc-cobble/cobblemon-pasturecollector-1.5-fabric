@@ -113,9 +113,7 @@ interface ImplementedInventory : Inventory {
      * Must be called after changes in the inventory, so that the game can properly save
      * the inventory contents and notify neighboring blocks of inventory changes.
      */
-    override fun markDirty() {
-        // Override if you want behavior.
-    }
+    override fun markDirty() {}
 
     /**
      * @return true if the player can use the inventory, false otherwise.
