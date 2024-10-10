@@ -106,8 +106,18 @@ class PastureCollectorBlockEntity(private val blockPos: BlockPos, blockState: Bl
             return
         }
 
+        debug("Dropped: $list")
+        list.forEach { stack ->
+            addStackWhereFits(stack)
+        }
+        debug("Inventory: $inventory")
+        debug("Leftover: $list")
+        markDirty()
+
+        val particle =
+            if (list.any { !it.isEmpty }) ParticleTypes.CAMPFIRE_COSY_SMOKE else ParticleTypes.COMPOSTER
         world.spawnParticles(
-            ParticleTypes.CAMPFIRE_COSY_SMOKE,
+            particle,
             blockPos.x.toDouble() + 0.5,
             blockPos.y.toDouble() + 1.0,
             blockPos.z.toDouble() + 0.5,
@@ -117,14 +127,6 @@ class PastureCollectorBlockEntity(private val blockPos: BlockPos, blockState: Bl
             0.1,
             0.0
         )
-
-        debug("Dropped: $list")
-        list.forEach { stack ->
-            addStackWhereFits(stack)
-        }
-        debug("Inventory: $inventory")
-        debug("Leftover: $list")
-        markDirty()
     }
 
     private fun addStackWhereFits(stackToAdd: ItemStack) {
