@@ -21,7 +21,7 @@ object PastureCollector : OmniModule<PastureCollectorConfig>(
 
     override fun register() {
         PASTURECOLLECTOR_BLOCKENTITYTYPE =
-            registerBlockEntity(PASTURECOLLECTOR_BLOCK, "nest", ::PastureCollectorBlockEntity)
+            registerBlockEntity(PASTURECOLLECTOR_BLOCK, "pasture_collector", ::PastureCollectorBlockEntity)
         registerBlock(PASTURECOLLECTOR_BLOCK, "pasture_collector", group = CobblemonItemGroups.BLOCKS_KEY)
     }
 }
