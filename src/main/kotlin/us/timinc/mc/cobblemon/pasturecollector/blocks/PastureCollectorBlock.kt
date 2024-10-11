@@ -39,7 +39,6 @@ import kotlin.math.min
 class PastureCollectorBlock(settings: Settings) : TBlockWithEntity<PastureCollectorBlockEntity>(settings) {
     @Suppress("OVERRIDE_DEPRECATION")
     override fun randomTick(blockState: BlockState, serverWorld: ServerWorld, blockPos: BlockPos, random: Random) {
-
         attemptToGetDrop(serverWorld, blockPos)
     }
 
