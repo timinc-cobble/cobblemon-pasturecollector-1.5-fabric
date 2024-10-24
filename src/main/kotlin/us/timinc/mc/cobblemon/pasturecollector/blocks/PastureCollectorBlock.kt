@@ -4,6 +4,7 @@ import com.cobblemon.mod.common.CobblemonBlocks
 import com.cobblemon.mod.common.block.entity.PokemonPastureBlockEntity
 import com.cobblemon.mod.common.pokemon.Pokemon
 import com.cobblemon.mod.common.util.giveOrDropItemStack
+import com.cobblemon.mod.common.util.toVec3d
 import net.minecraft.block.BlockRenderType
 import net.minecraft.block.BlockState
 import net.minecraft.block.entity.BlockEntity
@@ -13,6 +14,8 @@ import net.minecraft.inventory.Inventories
 import net.minecraft.inventory.SidedInventory
 import net.minecraft.item.ItemStack
 import net.minecraft.loot.LootDataType
+import net.minecraft.loot.context.LootContextParameterSet
+import net.minecraft.loot.context.LootContextParameters
 import net.minecraft.nbt.NbtCompound
 import net.minecraft.network.listener.ClientPlayPacketListener
 import net.minecraft.network.packet.Packet
@@ -31,7 +34,6 @@ import us.timinc.mc.cobblemon.pasturecollector.PastureCollector
 import us.timinc.mc.cobblemon.pasturecollector.PastureCollector.getDebug
 import us.timinc.mc.cobblemon.pasturecollector.PastureCollector.modIdentifier
 import us.timinc.mc.cobblemon.pasturecollector.api.ImplementedInventory
-import us.timinc.mc.cobblemon.pasturecollector.api.Loot
 import us.timinc.mc.cobblemon.pasturecollector.api.TBlockWithEntity
 import kotlin.math.min
 
@@ -127,8 +129,20 @@ class PastureCollectorBlockEntity(private val blockPos: BlockPos, blockState: Bl
         }
 
         debug("Picked ${pokemon.uuid}.")
-
-        val list = Loot.generateLoot(getSpeciesDropId(pokemon), world, blockPos)
+        val vecPos = blockPos.toVec3d()
+        val lootTable = lootManager.getLootTable(getSpeciesDropId(pokemon))
+        val list = lootTable.generateLoot(
+            LootContextParameterSet(
+                world,
+                mapOf(
+                    // NOTE: We should always have an entity, this is just here for an absolute backup.
+                    LootContextParameters.ORIGIN to (if (pokemon.entity != null) pokemon.entity?.pos else vecPos),
+                    LootContextParameters.THIS_ENTITY to pokemon.entity
+                ),
+                mapOf(),
+                0F
+            )
+        )
         if (list.isEmpty) {
             debug("Nothing dropped.")
             return
